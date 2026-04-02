@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Past Jobs — Gold Rush Hauling</title>
+  <meta name="description" content="Browse before and after photos of Gold Rush Hauling's junk removal jobs across Yolo and Sonoma County.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="gallery">
+
+  <!-- HERO -->
+  <section class="hero hero-page">
+    <div class="hero-inner">
+      <div class="hero-brand">
+        <h1 class="hero-title">Past<br>Jobs.</h1>
+      </div>
+      <div class="hero-tagline">
+        <p class="hero-sub">Before &amp; after.<br>Every time.</p>
+        <p class="hero-desc">We send before and after photos on every single job. Here's a look at some of the properties we've cleared across Yolo and Sonoma County.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="/contact.html" class="btn btn-gold btn-lg">Book Your Cleanout →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY — Light section -->
+  <section class="section section-light">
+    <div class="container">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px; margin-bottom:48px;">
+        <div>
+          <span class="section-label">Our Work</span>
+          <h2 class="display-sm">Real results.<br>Real properties.</h2>
+        </div>
+        <div class="gallery-filters" id="gallery-filters">
+          <button class="filter-btn active" data-filter="all">All Jobs</button>
+          <button class="filter-btn" data-filter="apartment">Apartments</button>
+          <button class="filter-btn" data-filter="estate">Estates</button>
+          <button class="filter-btn" data-filter="rural">Rural / Agricultural</button>
+          <button class="filter-btn" data-filter="general">General Haul</button>
+        </div>
+      </div>
+
+      <div class="gallery-grid" id="gallery-grid">
+        <div style="grid-column:1/-1; text-align:center; padding:60px 0; color:var(--gray);">
+          <p style="font-size:18px;">Loading photos...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-dark text-center">
+    <div class="container">
+      <p class="cta-eyebrow" style="color:rgba(255,255,255,0.4);">Seen enough?</p>
+      <h2 class="display-lg mb-32" style="color:var(--white);">Ready to clear it out?</h2>
+      <p class="body-lg mb-48 mx-auto" style="color:rgba(255,255,255,0.5); max-width:480px;">Text us a photo of your space and get a quote in minutes. We serve all of Yolo and Sonoma County.</p>
+      <div class="d-flex gap-16" style="justify-content:center; flex-wrap:wrap;">
+        <a href="/contact.html" class="btn btn-gold btn-lg">Get Your Free Quote →</a>
+        <a href="tel:+1PHONENUMBER" class="btn btn-outline-light btn-lg">Call or Text Us</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="/nav.js"></script>
+  <script>
+    // Placeholder photos shown when gallery is empty
+    const PLACEHOLDERS = [
+      { id: 'p1', label: 'Apartment Cleanout — Davis',        category: 'apartment', date: '2026-03-15',
+        before: 'https://picsum.photos/seed/grh-b1/600/450', after: 'https://picsum.photos/seed/grh-a1/600/450' },
+      { id: 'p2', label: 'Estate Cleanout — Woodland',        category: 'estate',    date: '2026-02-20',
+        before: 'https://picsum.photos/seed/grh-b2/600/450', after: 'https://picsum.photos/seed/grh-a2/600/450' },
+      { id: 'p3', label: 'Barn Cleanout — Yolo County',       category: 'rural',     date: '2026-01-10',
+        before: 'https://picsum.photos/seed/grh-b3/600/450', after: 'https://picsum.photos/seed/grh-a3/600/450' },
+      { id: 'p4', label: 'Garage Haul — Santa Rosa',          category: 'general',   date: '2025-12-05',
+        before: 'https://picsum.photos/seed/grh-b4/600/450', after: 'https://picsum.photos/seed/grh-a4/600/450' },
+      { id: 'p5', label: 'Student Move-Out — Davis',          category: 'apartment', date: '2025-11-22',
+        before: 'https://picsum.photos/seed/grh-b5/600/450', after: 'https://picsum.photos/seed/grh-a5/600/450' },
+      { id: 'p6', label: 'Estate Cleanout — Healdsburg',      category: 'estate',    date: '2025-10-30',
+        before: 'https://picsum.photos/seed/grh-b6/600/450', after: 'https://picsum.photos/seed/grh-a6/600/450' },
+    ];
+
+    let allPhotos   = [];
+    let activeFilter = 'all';
+
+    function formatDate(str) {
+      if (!str) return '';
+      const d = new Date(str + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function categoryLabel(cat) {
+      const map = { apartment: 'Apartment', estate: 'Estate', rural: 'Rural', general: 'General' };
+      return map[cat] || cat;
+    }
+
+    function renderGallery(photos) {
+      const grid = document.getElementById('gallery-grid');
+      const filtered = activeFilter === 'all' ? photos : photos.filter(p => p.category === activeFilter);
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="gallery-empty"><p style="font-size:18px; margin-bottom:8px;">No photos in this category yet.</p><p style="font-size:14px;">Check back soon — or <a href="/contact.html" style="color:var(--gold);">book your job today</a>.</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => `
+        <div class="gallery-card" data-category="${item.category}">
+          <div class="gallery-photos">
+            <div class="gallery-photo-wrap">
+              <img src="${item.before}" alt="Before — ${item.label}" loading="lazy">
+              <span class="gallery-photo-label before">Before</span>
+            </div>
+            <div class="gallery-photo-wrap">
+              <img src="${item.after}" alt="After — ${item.label}" loading="lazy">
+              <span class="gallery-photo-label after">After</span>
+            </div>
+          </div>
+          <div class="gallery-card-info">
+            <span class="gallery-card-label">${item.label}</span>
+            <span class="gallery-card-date">${formatDate(item.date)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter button logic
+    document.getElementById('gallery-filters').addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderGallery(allPhotos);
+    });
+
+    // Load gallery from API, fall back to placeholders
+    async function loadGallery() {
+      try {
+        const res   = await fetch('/api/gallery');
+        const data  = await res.json();
+        allPhotos   = data.length ? data : PLACEHOLDERS;
+      } catch {
+        allPhotos   = PLACEHOLDERS;
+      }
+      renderGallery(allPhotos);
+    }
+
+    loadGallery();
+  </script>
+</body>
+</html>

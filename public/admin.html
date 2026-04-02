@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Gold Rush Hauling</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { background: var(--dark-3); min-height: 100vh; }
+
+    /* Upload drop zone */
+    .upload-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border-dark);
+      border-radius: 10px;
+      padding: 32px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255,255,255,0.03);
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.06);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-zone-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .drop-zone-label.before { color: rgba(255,255,255,0.5); }
+    .drop-zone-label.after  { color: var(--gold); }
+
+    .drop-zone-icon { font-size: 28px; margin-bottom: 8px; }
+    .drop-zone-hint { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; }
+
+    .drop-zone-preview {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: none;
+      margin-top: 8px;
+    }
+
+    /* Status messages */
+    .status-msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+      margin-top: 16px;
+    }
+    .status-msg.success { background: rgba(80,200,100,0.12); border:1px solid rgba(80,200,100,0.3); color: #5dc878; }
+    .status-msg.error   { background: rgba(255,80,80,0.12);  border:1px solid rgba(255,80,80,0.3);  color: #ff6b6b; }
+
+    /* Admin photo grid items */
+    .admin-photo-card .photos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-photo-card img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+    }
+
+    .admin-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255,255,255,0.3);
+      font-size: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .upload-pair { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       LOGIN SCREEN — shown until authenticated
+       ============================================================ -->
+  <div id="login-screen" class="admin-login">
+    <div class="admin-login-box">
+      <div class="admin-login-logo">Gold Rush Hauling</div>
+      <div class="admin-login-sub">Gallery Admin Panel</div>
+
+      <form id="login-form" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="form-group" style="text-align:left;">
+          <label for="password" style="font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4);">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter admin password"
+            style="padding:14px 18px; border-radius:10px; border:1.5px solid var(--border-dark); background:rgba(255,255,255,0.06); color:var(--white); font-size:15px; font-family:var(--font); outline:none; width:100%; transition:border-color 0.2s;">
+        </div>
+        <div id="login-error" class="status-msg error"></div>
+        <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; margin-top:4px;">
+          Log In →
+        </button>
+      </form>
+
+      <p style="font-size:12px; color:rgba(255,255,255,0.2); margin-top:24px;">
+        <a href="/index.html" style="color:rgba(255,255,255,0.3);">← Back to website</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN DASHBOARD — shown after login
+       ============================================================ -->
+  <div id="admin-dashboard" style="display:none;">
+
+    <!-- Admin nav header -->
+    <div class="admin-header">
+      <h1>Gold Rush <span>Admin</span></h1>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <a href="/gallery.html" target="_blank" class="btn btn-outline-light btn-sm">View Gallery ↗</a>
+        <button id="logout-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); border:none;">Log Out</button>
+      </div>
+    </div>
+
+    <div class="admin-body">
+
+      <!-- UPLOAD SECTION -->
+      <div class="admin-section">
+        <h2>Upload Before &amp; After Photos</h2>
+
+        <form id="upload-form">
+          <!-- Photo pair drop zones -->
+          <div class="upload-pair" style="margin-bottom:16px;">
+            <div>
+              <div class="drop-zone" id="before-zone">
+                <input type="file" id="before-file" name="before" accept="image/*" required>
+                <div class="drop-zone-label before">Before Photo</div>
+                <div class="drop-zone-icon">📷</div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.4);">Click to upload</div>
+                <div class="drop-zone-hint">JPG, PNG, WEBP — max 15MB</div>
+                <img id="before-preview" class="drop-zone-preview" src="" alt="Before preview">
+              </div>
+            </div>
+            <div>
+              <div class="drop-zone" id="after-zone">
+                <input type="file" id="after-file" name="after" accept="image/*" required>
+                <div class="drop-zone-label after">After Photo</div>
+                <div class="drop-zone-icon">✨</div>
+                <div style="font-size:14px; color:rgba(255,255,255,0.4);">Click to upload</div>
+                <div class="drop-zone-hint">JPG, PNG, WEBP — max 15MB</div>
+                <img id="after-preview" class="drop-zone-preview" src="" alt="After preview">
+              </div>
+            </div>
+          </div>
+
+          <!-- Label + Category -->
+          <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:16px;">
+            <div class="form-group">
+              <label style="font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4);">Job Label *</label>
+              <input type="text" id="label" name="label" placeholder="e.g. Apartment Cleanout — Davis"
+                style="padding:14px 18px; border-radius:10px; border:1.5px solid var(--border-dark); background:rgba(255,255,255,0.06); color:var(--white); font-size:15px; font-family:var(--font); outline:none; width:100%; transition:border-color 0.2s;" required>
+            </div>
+            <div class="form-group">
+              <label style="font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4);">Category *</label>
+              <select id="category" name="category"
+                style="padding:14px 18px; border-radius:10px; border:1.5px solid var(--border-dark); background:rgba(255,255,255,0.06); color:var(--white); font-size:15px; font-family:var(--font); outline:none; width:100%; -webkit-appearance:none;" required>
+                <option value="apartment">Apartment</option>
+                <option value="estate">Estate</option>
+                <option value="rural">Rural / Agricultural</option>
+                <option value="general">General Haul</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="upload-status" class="status-msg"></div>
+
+          <button type="submit" class="btn btn-gold btn-lg" id="upload-btn" style="margin-top:8px;">
+            Upload Photos →
+          </button>
+        </form>
+      </div>
+
+      <!-- MANAGE PHOTOS SECTION -->
+      <div class="admin-section">
+        <h2>Manage Gallery Photos</h2>
+        <p style="font-size:14px; color:rgba(255,255,255,0.4); margin-bottom:24px;">Photos are displayed newest first on the public gallery page.</p>
+        <div id="admin-status" class="status-msg"></div>
+        <div class="admin-photo-grid" id="admin-photo-grid">
+          <div class="admin-empty">Loading photos...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    //  AUTH
+    // ============================================================
+    async function checkAuth() {
+      try {
+        const res  = await fetch('/api/admin/status');
+        const data = await res.json();
+        if (data.isAdmin) showDashboard();
+      } catch {}
+    }
+
+    function showDashboard() {
+      document.getElementById('login-screen').style.display    = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+      loadAdminPhotos();
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const pw  = document.getElementById('password').value;
+      const err = document.getElementById('login-error');
+      err.style.display = 'none';
+
+      try {
+        const res  = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showDashboard();
+        } else {
+          err.textContent = data.error || 'Incorrect password.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Connection error. Please try again.';
+        err.style.display = 'block';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      location.reload();
+    });
+
+    // ============================================================
+    //  PHOTO PREVIEW
+    // ============================================================
+    function setupPreview(inputId, previewId, zoneId) {
+      document.getElementById(inputId).addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const preview = document.getElementById(previewId);
+            preview.src   = e.target.result;
+            preview.style.display = 'block';
+            document.getElementById(zoneId).querySelector('.drop-zone-icon').style.display = 'none';
+            document.getElementById(zoneId).querySelectorAll('div:not(.drop-zone-label)').forEach(d => {
+              if (d.textContent.trim() === 'Click to upload') d.style.display = 'none';
+            });
+          };
+          reader.readAsDataURL(this.files[0]);
+        }
+      });
+    }
+
+    setupPreview('before-file', 'before-preview', 'before-zone');
+    setupPreview('after-file',  'after-preview',  'after-zone');
+
+    // Drag-over highlight
+    ['before-zone', 'after-zone'].forEach(id => {
+      const zone = document.getElementById(id);
+      zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+      zone.addEventListener('dragleave', ()  => zone.classList.remove('dragover'));
+      zone.addEventListener('drop',      e => { e.preventDefault(); zone.classList.remove('dragover'); });
+    });
+
+    // ============================================================
+    //  UPLOAD FORM
+    // ============================================================
+    document.getElementById('upload-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn    = document.getElementById('upload-btn');
+      const status = document.getElementById('upload-status');
+      btn.textContent  = 'Uploading...';
+      btn.disabled     = true;
+      status.style.display = 'none';
+
+      try {
+        const res  = await fetch('/api/admin/upload', { method: 'POST', body: new FormData(this) });
+        const data = await res.json();
+        if (data.success) {
+          status.textContent   = '✓ Photos uploaded successfully!';
+          status.className     = 'status-msg success';
+          status.style.display = 'block';
+          this.reset();
+          // Reset previews
+          ['before-preview', 'after-preview'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+          });
+          loadAdminPhotos();
+        } else { throw new Error(data.error); }
+      } catch(err) {
+        status.textContent   = '✗ ' + (err.message || 'Upload failed. Please try again.');
+        status.className     = 'status-msg error';
+        status.style.display = 'block';
+      } finally {
+        btn.textContent = 'Upload Photos →';
+        btn.disabled    = false;
+      }
+    });
+
+    // ============================================================
+    //  LOAD & RENDER ADMIN PHOTOS
+    // ============================================================
+    async function loadAdminPhotos() {
+      const grid = document.getElementById('admin-photo-grid');
+      try {
+        const res   = await fetch('/api/gallery');
+        const items = await res.json();
+
+        if (!items.length) {
+          grid.innerHTML = '<div class="admin-empty">No photos uploaded yet. Use the form above to add your first before &amp; after pair.</div>';
+          return;
+        }
+
+        grid.innerHTML = items.map(item => `
+          <div class="admin-photo-card" style="border:1px solid var(--border-dark); border-radius:8px; overflow:hidden;">
+            <div class="photos">
+              <img src="${item.before}" alt="Before" onerror="this.style.background='#333'; this.removeAttribute('src');">
+              <img src="${item.after}"  alt="After"  onerror="this.style.background='#333'; this.removeAttribute('src');">
+            </div>
+            <div class="admin-photo-card-info">
+              <div>
+                <div class="admin-photo-label">${item.label}</div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; text-transform:capitalize;">${item.category} · ${item.date}</div>
+              </div>
+              <button class="admin-delete-btn" data-id="${item.id}">Delete</button>
+            </div>
+          </div>
+        `).join('');
+
+        // Delete handlers
+        grid.querySelectorAll('.admin-delete-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            if (!confirm('Delete this before/after photo pair? This cannot be undone.')) return;
+            const id = this.dataset.id;
+            try {
+              const res  = await fetch(`/api/admin/photo/${id}`, { method: 'DELETE' });
+              const data = await res.json();
+              if (data.success) {
+                showAdminStatus('Photo pair deleted.', 'success');
+                loadAdminPhotos();
+              } else { throw new Error(data.error); }
+            } catch(err) {
+              showAdminStatus('Delete failed: ' + err.message, 'error');
+            }
+          });
+        });
+
+      } catch {
+        grid.innerHTML = '<div class="admin-empty">Could not load photos.</div>';
+      }
+    }
+
+    function showAdminStatus(msg, type) {
+      const el = document.getElementById('admin-status');
+      el.textContent   = (type === 'success' ? '✓ ' : '✗ ') + msg;
+      el.className     = `status-msg ${type}`;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    // ============================================================
+    //  INIT
+    // ============================================================
+    checkAuth();
+  </script>
+</body>
+</html>
