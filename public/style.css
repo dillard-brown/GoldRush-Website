@@ -1442,7 +1442,8 @@ ul  { list-style: none; }
   .hero-actions { grid-column: 1; grid-row: 3; }
 
   .split-layout,
-  .split-layout.reverse { grid-template-columns: 1fr; }
+  .split-layout.reverse,
+  .split-layout.equal { grid-template-columns: 1fr; }
   .split-layout.reverse .split-text,
   .split-layout.reverse .split-visual { order: unset; }
 
