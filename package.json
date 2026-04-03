@@ -1,7 +1,7 @@
 {
   "name": "gold-rush-hauling",
   "version": "1.0.0",
-  "description": "Gold Rush Hauling — Yolo & Sonoma County's Cleanout Specialists",
+  "description": "Gold Rush Hauling — Yolo & Napa County's Cleanout Specialists",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

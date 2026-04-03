@@ -35,7 +35,7 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; font-size: 18px; }
 
 body {
   font-family: var(--font);
@@ -122,25 +122,32 @@ ul  { list-style: none; }
 
 .nav-dropdown .dropdown-menu {
   position: absolute;
-  top: calc(100% + 12px);
+  top: 100%;           /* no gap — mouse stays in hover zone */
   left: 50%;
   transform: translateX(-50%);
-  background: var(--dark-2);
-  border: 1px solid var(--border-dark);
-  border-radius: var(--card-radius);
-  padding: 8px;
+  padding-top: 12px;   /* invisible bridge pushes visible box down */
   min-width: 220px;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s;
+  transition: opacity 0.2s, visibility 0.2s;
   pointer-events: none;
+}
+
+/* The visible box sits inside the padding bridge */
+.nav-dropdown .dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 0; right: 0; bottom: 0;
+  background: var(--dark-2);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--card-radius);
+  z-index: -1;
 }
 
 .nav-dropdown:hover .dropdown-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  top: calc(100% + 8px);
 }
 
 .nav-dropdown .dropdown-menu a {
@@ -1380,6 +1387,57 @@ ul  { list-style: none; }
   background: var(--gold);
   margin: 24px 0;
   border-radius: 2px;
+}
+
+/* ============================================================
+   HERO BACKGROUND IMAGE (Homepage)
+   ============================================================ */
+.hero-home {
+  background-image: url('/hero-bg.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+}
+
+/* Radial gradient overlay: text stays readable, image shows through */
+.hero-home::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 55%, rgba(28,28,30,0.45) 0%, rgba(28,28,30,0.82) 55%, rgba(17,17,19,0.97) 100%);
+  z-index: 0;
+}
+
+/* Gold bottom line still renders on top */
+.hero-home::after { z-index: 1; }
+
+.hero-home .hero-inner { position: relative; z-index: 1; }
+
+/* ============================================================
+   HERO TITLE — Gold Sweep Hover Animation
+   ============================================================ */
+.hero-title-animated {
+  background: linear-gradient(
+    90deg,
+    var(--gold-light) 0%,
+    var(--gold)       22%,
+    var(--white)      34%,
+    var(--white)      100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  background-position: 100% 0;
+  transition: background-position 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: default;
+  display: inline-block;
+}
+
+.hero-title-animated:hover {
+  background-position: 0% 0;
 }
 
 /* ============================================================

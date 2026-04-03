@@ -55,7 +55,7 @@
       <div class="footer-top">
         <div class="footer-brand">
           <span class="footer-logo">Gold Rush<span> Hauling</span></span>
-          <p class="footer-tagline">Yolo &amp; Sonoma County's Cleanout Specialists. Licensed, insured &amp; local.</p>
+          <p class="footer-tagline">Yolo &amp; Napa County's Cleanout Specialists. Licensed, insured &amp; local.</p>
         </div>
         <div class="footer-links">
           <div class="footer-col">
@@ -83,7 +83,7 @@
       </div>
       <div class="footer-bottom">
         <span>© ${new Date().getFullYear()} Gold Rush Hauling. All rights reserved.</span>
-        <span>Based in Davis, CA · Serving Yolo &amp; Sonoma County</span>
+        <span>Based in Davis, CA · Serving Yolo &amp; Napa County</span>
       </div>
     </footer>
   `;
