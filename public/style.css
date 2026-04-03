@@ -35,7 +35,7 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; font-size: 18px; }
+html { scroll-behavior: smooth; font-size: 20px; }
 
 body {
   font-family: var(--font);
@@ -380,9 +380,9 @@ ul  { list-style: none; }
   letter-spacing: -0.02em;
 }
 
-.body-lg   { font-size: 18px; line-height: 1.65; }
-.body-md   { font-size: 16px; line-height: 1.6; }
-.body-sm   { font-size: 14px; line-height: 1.6; }
+.body-lg   { font-size: 20px; line-height: 1.65; }
+.body-md   { font-size: 18px; line-height: 1.6; }
+.body-sm   { font-size: 15px; line-height: 1.6; }
 .text-gray { color: var(--gray); }
 .text-gold { color: var(--gold); }
 .text-white { color: var(--white); }
@@ -1392,52 +1392,31 @@ ul  { list-style: none; }
 /* ============================================================
    HERO BACKGROUND IMAGE (Homepage)
    ============================================================ */
+/* Single background shorthand overrides .hero's background: var(--dark) */
 .hero-home {
-  background-image: url('/hero-bg.jpg');
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
-}
-
-/* Radial gradient overlay: text stays readable, image shows through */
-.hero-home::before {
-  content: '';
-  position: absolute;
-  inset: 0;
   background:
-    radial-gradient(ellipse at 25% 55%, rgba(28,28,30,0.45) 0%, rgba(28,28,30,0.82) 55%, rgba(17,17,19,0.97) 100%);
-  z-index: 0;
+    radial-gradient(ellipse at 25% 55%,
+      rgba(28,28,30,0.35) 0%,
+      rgba(28,28,30,0.72) 48%,
+      rgba(17,17,19,0.96) 100%),
+    url('/hero-bg.jpg') center 30% / cover no-repeat,
+    var(--dark);
 }
-
-/* Gold bottom line still renders on top */
-.hero-home::after { z-index: 1; }
-
-.hero-home .hero-inner { position: relative; z-index: 1; }
 
 /* ============================================================
-   HERO TITLE — Gold Sweep Hover Animation
+   HERO TITLE — Gold Glow Hover Animation
    ============================================================ */
 .hero-title-animated {
-  background: linear-gradient(
-    90deg,
-    var(--gold-light) 0%,
-    var(--gold)       22%,
-    var(--white)      34%,
-    var(--white)      100%
-  );
-  background-size: 300% 100%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  background-position: 100% 0;
-  transition: background-position 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  color: var(--white);
+  transition: color 0.45s ease, text-shadow 0.45s ease;
   cursor: default;
-  display: inline-block;
 }
 
 .hero-title-animated:hover {
-  background-position: 0% 0;
+  color: var(--gold-light);
+  text-shadow:
+    0 0 40px rgba(201, 168, 76, 0.55),
+    0 0 100px rgba(201, 168, 76, 0.25);
 }
 
 /* ============================================================
